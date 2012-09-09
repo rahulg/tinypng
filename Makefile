@@ -14,7 +14,7 @@ unit: CFLAGS += -DDEBUG -g
 unit: tinypng.o tinypng_test.o
 	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
 
-%.o: %.cc
+%.o: %.cc tinypng.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

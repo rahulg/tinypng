@@ -20,8 +20,25 @@ int main(int argc, char const *argv[])
 
 	PNG test("test_out.png");
 	
-	std::cout << "TinyPNG test: ";
+	std::cout << "TinyPNG IO + codec test: ";
 	if (input == test)
+	{
+		std::cout << "SUCCESS" << endl;
+	}
+	else
+	{
+		std::cout << "FAILURE" << endl;
+	}
+
+	uint8_t *bytes = test.bytes();
+	int max = test.getWidth() * test.getHeight() * 4;
+	for (int i = 0; i < max; ++i)
+	{
+		bytes[i] += 7;
+	}
+	
+	std::cout << "TinyPNG byte-wise access test: ";
+	if (test(0,0)->red == input(0,0)->red + 7)
 	{
 		std::cout << "SUCCESS" << endl;
 	}

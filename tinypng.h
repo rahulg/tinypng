@@ -151,10 +151,18 @@ namespace tinypng {
 		 */
 		int getHeight() const;
 
+		/*!
+		 * Gets a pointer to the RGBA bytestream.
+		 *
+		 * @return Pointer to the RGBA bytestream.
+		 */
+		uint8_t* bytes() const;
+
 	private:
 		int _width;
 		int _height;
 		Pixel *_pixels;
+		uint8_t *_bytes;
 
 		static inline bool _pixelsSame(const Pixel& first, const Pixel& second);
 
@@ -162,6 +170,7 @@ namespace tinypng {
 		void _init();
 		void _blank();
 		void _copy(PNG const& other);
+		void _syncBytes();
 		void _clampXY(int& width, int& height) const;
 		Pixel& _pixelAt(int x, int y) const;
 	};

@@ -30,12 +30,13 @@ PNG::PNG(int width, int height)
 	_width = width;
 	_height = height;
 	_pixels = new Pixel[_height * _width];
+	_syncBytes();
 }
 
 PNG::PNG(string const& file_name)
 {
 	_pixels = NULL;
-	this->readFromFile(file_name);
+	readFromFile(file_name);
 }
 
 PNG::PNG(PNG const& other)
@@ -197,6 +198,8 @@ bool PNG::readFromFile(string const& file_name)
 			_pixelAt(x,y).raw = *pix++;
 		}
 	}
+	
+	_syncBytes();
 
 	// cleanup
 	delete [] row;
@@ -299,6 +302,11 @@ int PNG::getHeight() const
 	return _height;
 }
 
+uint8_t* PNG::bytes() const
+{
+	return _bytes;
+}
+
 void PNG::_init()
 {
 	if (_pixels != NULL)
@@ -309,6 +317,7 @@ void PNG::_init()
 	_width = 1;
 	_height = 1;
 	_pixels = new Pixel[1];
+	_syncBytes();
 	_blank();
 }
 
@@ -335,6 +344,12 @@ void PNG::_copy(PNG const& other)
 			_pixelAt(x,y) = other._pixelAt(x,y);
 		}
 	}
+	_syncBytes();
+}
+
+void PNG::_syncBytes()
+{
+	_bytes = reinterpret_cast<uint8_t *>(&(_pixels[0].raw));
 }
 
 void PNG::_clampXY(int& x, int& y) const

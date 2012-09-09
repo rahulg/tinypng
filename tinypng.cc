@@ -14,7 +14,7 @@ inline void pngErr(string const& error)
 	cerr << "[TinyPNG]: " << error << endl;
 }
 
-inline bool _pixels_same(const Pixel& first, const Pixel& second)
+inline bool PNG::_pixelsSame(const Pixel& first, const Pixel& second)
 {
 	return first.raw == second.raw;
 }
@@ -71,7 +71,7 @@ bool PNG::operator==(PNG const& other) const
 	{
 		for (int x = 0; x < _width; x++)
 		{
-			if(!_pixels_same(_pixelAt(x, y), other._pixelAt(x, y)))
+			if(!PNG::_pixelsSame(_pixelAt(x, y), other._pixelAt(x, y)))
 				return false;
 		}
 	}

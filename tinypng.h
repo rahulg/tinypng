@@ -156,12 +156,13 @@ namespace tinypng {
 		int _height;
 		Pixel *_pixels;
 
+		static inline bool _pixelsSame(const Pixel& first, const Pixel& second);
+
 		// Helper functions
 		void _init();
 		void _blank();
 		void _copy(PNG const& other);
 		void _clampXY(int& width, int& height) const;
-		//bool _pixelsSame(const Pixel& first, const Pixel& second) const;
 		Pixel& _pixelAt(int x, int y) const;
 	};
 

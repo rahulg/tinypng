@@ -1,10 +1,10 @@
 # TinyPNG #
 
-This project has nearly no reason to exist, other than the fact that I was stubborn.
-I wanted a C++ library to handle PNG images, and I wanted one that would give me
-direct access to the pixels as a bytestream (in RGBA 8888 format). No such thing
-existed that would not be overkill for a project as small as the one I was working
-on.
+This project has nearly no reason to exist, other than the fact that I was stubborn.  
+I wanted a C++ library to handle PNG images, and I wanted one that would give me  
+direct access to the pixels as a bytestream (in RGBA 8888 format). No such thing  
+existed that would not be overkill for a project as small as the one I was working  
+on.  
 
 # License #
 
@@ -14,13 +14,13 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without  
 modification, are permitted provided that the following conditions are met:  
 
-* Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in the
-  documentation and/or other materials provided with the distribution.
-* The names of its contributors may be used to endorse or promote products
-  derived from this software without specific prior written permission.
+* Redistributions of source code must retain the above copyright  
+  notice, this list of conditions and the following disclaimer.  
+* Redistributions in binary form must reproduce the above copyright  
+  notice, this list of conditions and the following disclaimer in the  
+  documentation and/or other materials provided with the distribution.  
+* The names of its contributors may be used to endorse or promote products  
+  derived from this software without specific prior written permission.  
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND  
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED  

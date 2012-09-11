@@ -5,6 +5,12 @@ LIBS=-lpng
 OBJ=png.o pixel.o
 HDR=png.h pixel.h
 
+SYSTEM=$(shell uname -s)
+
+ifeq ($(SYSTEM), Linux)
+LIBS += -Wl,-lstdc++
+endif
+
 .PHONY: all debug unit clean
 
 all: CLFAGS += -O4

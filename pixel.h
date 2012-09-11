@@ -4,8 +4,8 @@
  * 
  * @author Rahul A. G.
  */
-#ifndef __TINY_PIXEL__
-#define __TINY_PIXEL__
+#ifndef __TINY_PIXEL_H__
+#define __TINY_PIXEL_H__
 
 // C++ includes
 #include <iostream>

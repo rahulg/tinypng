@@ -1,5 +1,5 @@
 /*!
- * @file tinypng.cc
+ * @file pixel.h
  * Definition of the Pixel class for TinyPNG.
  * 
  * @author Rahul A. G.

@@ -1,5 +1,5 @@
 /*!
- * @file tinypng.cc
+ * @file png.cc
  * Implementation of the TinyPNG C++ wrapper for libPNG.
  *
  * @author Rahul A. G.

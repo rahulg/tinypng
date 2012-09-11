@@ -1,5 +1,5 @@
 /*!
- * @file tinypng.h
+ * @file png.h
  * Definition of the TinyPNG C++ wrapper for libPNG.
  * 
  * @author Rahul A. G.
@@ -106,7 +106,7 @@ namespace tinypng {
 		 *
 		 * @param x X-coordinate for the pixel.
 		 * @param y Y-coordinate for the pixel.
-		 * @return A reference to the pixel at the given coordinates.
+		 * @return The pixel at the given coordinates.
 		 */
 		Pixel operator()(int x, int y);
 

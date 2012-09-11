@@ -1,5 +1,5 @@
 /*!
- * @file tinypng.cc
+ * @file pixel.cc
  * Implementation of the Pixel class for TinyPNG.
  * 
  * @author Rahul A. G.

@@ -198,7 +198,7 @@ bool PNG::readFromFile(string const& file_name)
 	}
 
 	// cleanup
-	delete [] row;
+	delete[] row;
 	png_read_end(png_ptr, NULL);
 	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 	fclose(fp);

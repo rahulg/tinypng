@@ -2,16 +2,18 @@ CC=clang++
 CFLAGS=
 LIBS=-lpng
 
+OBJ=png.o pixel.o
+
 .PHONY: all unit debug clean
 
 all: CLFAGS += -O4
-all: tinypng.o
+all: $(OBJ)
 
 debug: CFLAGS += -DDEBUG -g
-debug: tinypng.o
+debug: $(OBJ)
 
 unit: CFLAGS += -DDEBUG -g
-unit: tinypng.o tinypng_test.o
+unit: $(OBJ) unit_test.o
 	$(CC) $(CFLAGS) $(LIBS) $^ -o $@
 
 %.o: %.cc tinypng.h

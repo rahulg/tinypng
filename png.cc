@@ -16,7 +16,7 @@ inline void pngErr(string const& error)
 
 PNG::PNG()
 {
-	_bytestream = NULL;
+	_buffer = NULL;
 	_init();
 }
 
@@ -25,7 +25,7 @@ PNG::PNG(int width, int height)
 	_width = width;
 	_height = height;
 	_ext_buffer = false;
-	_bytestream = new uint8_t[_height * _width * PNG::BPP];
+	_buffer = new uint8_t[_height * _width * PNG::BPP];
 }
 
 PNG::PNG(int width, int height, uint8_t *buffer)
@@ -33,12 +33,12 @@ PNG::PNG(int width, int height, uint8_t *buffer)
 	_width = width;
 	_height = height;
 	_ext_buffer = true;
-	_bytestream = buffer;
+	_buffer = buffer;
 }
 
 PNG::PNG(string const& file_name)
 {
-	_bytestream = NULL;
+	_buffer = NULL;
 	_ext_buffer = false;
 	readFromFile(file_name);
 }
@@ -52,8 +52,8 @@ PNG::~PNG()
 {
 	if (!_ext_buffer)
 	{
-		delete[] _bytestream;
-		_bytestream = NULL;
+		delete[] _buffer;
+		_buffer = NULL;
 	}
 }
 
@@ -61,8 +61,8 @@ PNG const& PNG::operator=(PNG const& other)
 {
 	if (this != &other)
 	{
-		delete[] _bytestream;
-		_bytestream = NULL;
+		delete[] _buffer;
+		_buffer = NULL;
 		_copy(other);
 	}
 	return *this;
@@ -75,7 +75,7 @@ bool PNG::operator==(PNG const& other) const
 		return false;
 	}
 
-	return (memcmp(_bytestream, other._bytestream, _width * _height) == 0);
+	return (memcmp(_buffer, other._buffer, _width * _height) == 0);
 }
 
 bool PNG::operator!=(PNG const & other) const
@@ -91,10 +91,10 @@ Pixel PNG::operator()(int x, int y)
 
 bool PNG::readFromFile(string const& file_name)
 {
-	if (!_ext_buffer && _bytestream != NULL)
+	if (!_ext_buffer && _buffer != NULL)
 	{
-		delete[] _bytestream;
-		_bytestream = NULL;
+		delete[] _buffer;
+		_buffer = NULL;
 	}
 	
 	// we need to open the file in binary mode
@@ -165,7 +165,7 @@ bool PNG::readFromFile(string const& file_name)
 	{
 		_width = png_get_image_width(png_ptr, info_ptr);
 		_height = png_get_image_height(png_ptr, info_ptr);
-		_bytestream = new uint8_t[_height * _width * PNG::BPP];
+		_buffer = new uint8_t[_height * _width * PNG::BPP];
 	}
 	else
 	{
@@ -199,7 +199,7 @@ bool PNG::readFromFile(string const& file_name)
 	for (int y = 0; y < _height; y++)
 	{
 		png_read_row(png_ptr, row, NULL);
-		memcpy(_bytestream + y*_width*PNG::BPP, row, _width*PNG::BPP);
+		memcpy(_buffer + y*_width*PNG::BPP, row, _width*PNG::BPP);
 	}
 
 	// cleanup
@@ -277,7 +277,7 @@ bool PNG::writeToFile(string const & file_name)
 	png_byte * row = new png_byte[bpr];
 	for (int y = 0; y < _height; y++)
 	{
-		memcpy(row, _bytestream + y*_width*PNG::BPP, _width*PNG::BPP);
+		memcpy(row, _buffer + y*_width*PNG::BPP, _width*PNG::BPP);
 		png_write_row(png_ptr, row);
 	}
 
@@ -299,8 +299,8 @@ int PNG::getHeight() const
 	return _height;
 }
 
-uint8_t *PNG::byteStream() {
-	return _bytestream;
+uint8_t *PNG::buffer() {
+	return _buffer;
 }
 
 void PNG::_init()
@@ -310,21 +310,21 @@ void PNG::_init()
 		return;
 	}
 
-	if (_bytestream != NULL)
+	if (_buffer != NULL)
 	{
-		delete[] _bytestream;
-		_bytestream = NULL;
+		delete[] _buffer;
+		_buffer = NULL;
 	}
 	_width = 1;
 	_height = 1;
 	_ext_buffer = false;
-	_bytestream = new uint8_t[1 * PNG::BPP];
+	_buffer = new uint8_t[1 * PNG::BPP];
 	_blank();
 }
 
 void PNG::_blank()
 {
-	memset(_bytestream, 0xFF, _width * _height * PNG::BPP);
+	memset(_buffer, 0xFF, _width * _height * PNG::BPP);
 }
 
 void PNG::_copy(PNG const& other)
@@ -334,7 +334,7 @@ void PNG::_copy(PNG const& other)
 		_width = other._width;
 		_height = other._height;
 		_ext_buffer = false;
-		_bytestream = new uint8_t[_width * _height * PNG::BPP];
+		_buffer = new uint8_t[_width * _height * PNG::BPP];
 	} else {
 		if (_width * _height != other._width * other._height)
 		{
@@ -345,7 +345,7 @@ void PNG::_copy(PNG const& other)
 		_height = other._height;
 	}
 	
-	memcpy(_bytestream, other._bytestream, _width * _height * PNG::BPP);
+	memcpy(_buffer, other._buffer, _width * _height * PNG::BPP);
 }
 
 void PNG::_clampXY(int& x, int& y) const
@@ -370,5 +370,5 @@ void PNG::_clampXY(int& x, int& y) const
 
 Pixel PNG::_pixelAt(int x, int y) const
 {
-	return Pixel(_bytestream + (y * _width + x));
+	return Pixel(_buffer + (y * _width + x));
 }

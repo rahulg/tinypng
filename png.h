@@ -142,18 +142,18 @@ namespace tinypng {
 		int getHeight() const;
 
 		/*!
-		 * Gets the bytestream backing the image.
+		 * Gets the buffer backing the image.
 		 *
-		 * @return Pointer to the bytestream of the image.
+		 * @return Pointer to the image buffer.
 		 */
-		uint8_t *byteStream();
+		uint8_t *buffer();
 
 		static const int BPP = 4;
 
 	private:
 		int _width;
 		int _height;
-		uint8_t *_bytestream;
+		uint8_t *_buffer;
 		bool _ext_buffer;
 
 		// Helper functions

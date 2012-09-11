@@ -5,7 +5,7 @@
  * @author Rahul A. G.
  */
 
-#include "tinypng.h"
+#include "png.h"
 
 #include <iostream>
 #include <stdio.h>

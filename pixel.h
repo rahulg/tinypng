@@ -8,7 +8,7 @@
 #define __TINY_PIXEL_H__
 
 // C++ includes
-#include <iostream>
+#include <stdint.h>
 
 namespace tinypng
 {

@@ -36,7 +36,7 @@ int main(int argc, char const *argv[])
 	test(0,0).blue() -= 7;
 	test(0,0).alpha() -= 7;
 
-	std::cout << "TinyPNG byte-wise access test: ";
+	std::cout << "TinyPNG pixel access test: ";
 	uint32_t v_test, v_input;
 	v_input =  input(0,0).red() + input(0,0).green() + input(0,0).blue() + input(0,0).alpha();
 	v_test =  test(0,0).red() + test(0,0).green() + test(0,0).blue() + test(0,0).alpha();
@@ -49,7 +49,24 @@ int main(int argc, char const *argv[])
 		std::cout << "FAILURE" << endl;
 	}
 
+	uint8_t *backing_store = new uint8_t[1920 * 1080 * PNG::BPP];
+	PNG bs_test(1920, 1080, backing_store);
+
+	bs_test.readFromFile("test_in.png");
+
+	std::cout << "TinyPNG external bytestream test: ";
+	if (input == bs_test)
+	{
+		std::cout << "SUCCESS" << endl;
+	}
+	else
+	{
+		std::cout << "FAILURE" << endl;
+	}
+
 	remove("test_out.png");
+
+	delete[] backing_store;
 
 	return 0;
 }

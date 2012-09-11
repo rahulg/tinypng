@@ -33,11 +33,13 @@ PNG::PNG(int width, int height, uint8_t *buffer)
 	_width = width;
 	_height = height;
 	_ext_buffer = true;
+	_bytestream = buffer;
 }
 
 PNG::PNG(string const& file_name)
 {
 	_bytestream = NULL;
+	_ext_buffer = false;
 	readFromFile(file_name);
 }
 
@@ -48,8 +50,11 @@ PNG::PNG(PNG const& other)
 
 PNG::~PNG()
 {
-	delete[] _bytestream;
-	_bytestream = NULL;
+	if (!_ext_buffer)
+	{
+		delete[] _bytestream;
+		_bytestream = NULL;
+	}
 }
 
 PNG const& PNG::operator=(PNG const& other)
@@ -160,6 +165,7 @@ bool PNG::readFromFile(string const& file_name)
 	{
 		_width = png_get_image_width(png_ptr, info_ptr);
 		_height = png_get_image_height(png_ptr, info_ptr);
+		_bytestream = new uint8_t[_height * _width * PNG::BPP];
 	}
 	else
 	{
@@ -189,7 +195,6 @@ bool PNG::readFromFile(string const& file_name)
 	int bpr = png_get_rowbytes(png_ptr, info_ptr); // number of bytes in a row
 
 	// initialie our image storage
-	_bytestream = new uint8_t[_height * _width * PNG::BPP];
 	png_byte * row = new png_byte[bpr];
 	for (int y = 0; y < _height; y++)
 	{
@@ -292,6 +297,10 @@ int PNG::getWidth() const
 int PNG::getHeight() const
 {
 	return _height;
+}
+
+uint8_t *PNG::byteStream() {
+	return _bytestream;
 }
 
 void PNG::_init()

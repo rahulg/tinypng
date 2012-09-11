@@ -9,19 +9,52 @@
 
 using namespace tinypng;
 
+Pixel::Pixel(uint8_t *data)
+{
+	_data = data;
+}
+
+uint8_t& Pixel::red()
+{
+	return _data[0];
+}
+
+uint8_t& Pixel::green()
+{
+	return _data[1];
+}
+
+uint8_t& Pixel::blue()
+{
+	return _data[2];
+}
+
+uint8_t& Pixel::alpha()
+{
+	return _data[3];
+}
+
+bool Pixel::operator==(Pixel const& other)
+{
+	return _data[0] == other._data[0]
+	    && _data[1] == other._data[1]
+	    && _data[2] == other._data[2]
+	    && _data[3] == other._data[3];
+}
+
+bool Pixel::operator!=(Pixel const& other)
+{
+	return !(*this == other);
+}
+
 inline void pngErr(string const& error)
 {
 	cerr << "[TinyPNG]: " << error << endl;
 }
 
-inline bool PNG::_pixelsSame(const Pixel& first, const Pixel& second)
-{
-	return first.raw == second.raw;
-}
-
 PNG::PNG()
 {
-	_pixels = NULL;
+	_bytestream = NULL;
 	_init();
 }
 
@@ -29,13 +62,20 @@ PNG::PNG(int width, int height)
 {
 	_width = width;
 	_height = height;
-	_pixels = new Pixel[_height * _width];
-	_syncBytes();
+	_ext_buffer = false;
+	_bytestream = new uint8_t[_height * _width * PNG::BPP];
+}
+
+PNG::PNG(int width, int height, uint8_t *buffer)
+{
+	_width = width;
+	_height = height;
+	_ext_buffer = true;
 }
 
 PNG::PNG(string const& file_name)
 {
-	_pixels = NULL;
+	_bytestream = NULL;
 	readFromFile(file_name);
 }
 
@@ -46,16 +86,16 @@ PNG::PNG(PNG const& other)
 
 PNG::~PNG()
 {
-	delete[] _pixels;
-	_pixels = NULL;
+	delete[] _bytestream;
+	_bytestream = NULL;
 }
 
 PNG const& PNG::operator=(PNG const& other)
 {
 	if (this != &other)
 	{
-		delete[] _pixels;
-		_pixels = NULL;
+		delete[] _bytestream;
+		_bytestream = NULL;
 		_copy(other);
 	}
 	return *this;
@@ -68,15 +108,7 @@ bool PNG::operator==(PNG const& other) const
 		return false;
 	}
 
-	for (int y = 0; y < _height; y++)
-	{
-		for (int x = 0; x < _width; x++)
-		{
-			if(!PNG::_pixelsSame(_pixelAt(x, y), other._pixelAt(x, y)))
-				return false;
-		}
-	}
-	return true;
+	return (memcmp(_bytestream, other._bytestream, _width * _height) == 0);
 }
 
 bool PNG::operator!=(PNG const & other) const
@@ -84,24 +116,18 @@ bool PNG::operator!=(PNG const & other) const
 	return !(*this == other);
 }
 
-Pixel* PNG::operator()(int x, int y)
+Pixel PNG::operator()(int x, int y)
 {
 	_clampXY(x, y);
-	return &(_pixelAt(x,y));
-}
-
-Pixel const* PNG::operator()(int x, int y) const
-{
-	_clampXY(x, y);
-	return &(_pixelAt(x,y));
+	return _pixelAt(x,y);
 }
 
 bool PNG::readFromFile(string const& file_name)
 {
-	if (_pixels != NULL)
+	if (!_ext_buffer && _bytestream != NULL)
 	{
-		delete[] _pixels;
-		_pixels = NULL;
+		delete[] _bytestream;
+		_bytestream = NULL;
 	}
 	
 	// we need to open the file in binary mode
@@ -168,8 +194,22 @@ bool PNG::readFromFile(string const& file_name)
 	if (bit_depth == 16)
 		png_set_strip_16(png_ptr);
 
-	_width = png_get_image_width(png_ptr, info_ptr);
-	_height = png_get_image_height(png_ptr, info_ptr);
+	if (!_ext_buffer)
+	{
+		_width = png_get_image_width(png_ptr, info_ptr);
+		_height = png_get_image_height(png_ptr, info_ptr);
+	}
+	else
+	{
+		if (_width != png_get_image_width(png_ptr, info_ptr)
+		 || _height != png_get_image_height(png_ptr, info_ptr))
+		{
+			pngErr("Image dimensions do not match external buffer");
+			png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+			fclose(fp);
+			return false;
+		}
+	}
 
 	png_read_update_info(png_ptr, info_ptr);
 
@@ -187,19 +227,13 @@ bool PNG::readFromFile(string const& file_name)
 	int bpr = png_get_rowbytes(png_ptr, info_ptr); // number of bytes in a row
 
 	// initialie our image storage
-	_pixels = new Pixel[_height * _width];
+	_bytestream = new uint8_t[_height * _width * PNG::BPP];
 	png_byte * row = new png_byte[bpr];
 	for (int y = 0; y < _height; y++)
 	{
 		png_read_row(png_ptr, row, NULL);
-		uint32_t* pix = reinterpret_cast<uint32_t *>(row);
-		for (int x = 0; x < _width; x++)
-		{
-			_pixelAt(x,y).raw = *pix++;
-		}
+		memcpy(_bytestream + y*_width*PNG::BPP, row, _width*PNG::BPP);
 	}
-	
-	_syncBytes();
 
 	// cleanup
 	delete [] row;
@@ -276,11 +310,7 @@ bool PNG::writeToFile(string const & file_name)
 	png_byte * row = new png_byte[bpr];
 	for (int y = 0; y < _height; y++)
 	{
-		for (int x = 0; x < _width; x++)
-		{
-			uint32_t *pixel = reinterpret_cast<uint32_t *>(&row[x*4]);
-			*pixel = _pixelAt(x, y).raw;
-		}
+		memcpy(row, _bytestream + y*_width*PNG::BPP, _width*PNG::BPP);
 		png_write_row(png_ptr, row);
 	}
 
@@ -302,54 +332,49 @@ int PNG::getHeight() const
 	return _height;
 }
 
-uint8_t* PNG::bytes() const
-{
-	return _bytes;
-}
-
 void PNG::_init()
 {
-	if (_pixels != NULL)
+	if (_ext_buffer)
 	{
-		delete[] _pixels;
-		_pixels = NULL;
+		return;
+	}
+
+	if (_bytestream != NULL)
+	{
+		delete[] _bytestream;
+		_bytestream = NULL;
 	}
 	_width = 1;
 	_height = 1;
-	_pixels = new Pixel[1];
-	_syncBytes();
+	_ext_buffer = false;
+	_bytestream = new uint8_t[1 * PNG::BPP];
 	_blank();
 }
 
 void PNG::_blank()
 {
-	for (int y = 0; y < _height; ++y)
-	{
-		for (int x = 0; x < _width; ++x)
-		{
-			_pixelAt(x, y).raw = 0xFFFFFFFF;
-		}
-	}
+	memset(_bytestream, 0xFF, _width * _height * PNG::BPP);
 }
 
 void PNG::_copy(PNG const& other)
 {
-	_width = other._width;
-	_height = other._height;
-	_pixels = new Pixel[_height * _width];
-	for (int y = 0; y < _height; ++y)
+	if (!_ext_buffer)
 	{
-		for (int x = 0; x < _width; ++x)
+		_width = other._width;
+		_height = other._height;
+		_ext_buffer = false;
+		_bytestream = new uint8_t[_width * _height * PNG::BPP];
+	} else {
+		if (_width * _height != other._width * other._height)
 		{
-			_pixelAt(x,y) = other._pixelAt(x,y);
+			return;
 		}
-	}
-	_syncBytes();
-}
 
-void PNG::_syncBytes()
-{
-	_bytes = reinterpret_cast<uint8_t *>(&(_pixels[0].raw));
+		_width = other._width;
+		_height = other._height;
+	}
+	
+	memcpy(_bytestream, other._bytestream, _width * _height * PNG::BPP);
 }
 
 void PNG::_clampXY(int& x, int& y) const
@@ -372,7 +397,7 @@ void PNG::_clampXY(int& x, int& y) const
 	}
 }
 
-Pixel& PNG::_pixelAt(int x, int y) const
+Pixel PNG::_pixelAt(int x, int y) const
 {
-	return _pixels[y * _width + x];
+	return Pixel(_bytestream + (y * _width + x));
 }

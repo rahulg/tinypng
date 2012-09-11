@@ -28,15 +28,18 @@ namespace tinypng {
 	/*!
 	 * Represents a single 32-bit pixel.
 	 */
-	struct Pixel
+	class Pixel
 	{
-		union
-		{
-			struct {
-				uint8_t red, green, blue, alpha;
-			};
-			uint32_t raw;
-		};
+	public:
+		Pixel(uint8_t *data);
+		uint8_t& red();
+		uint8_t& green();
+		uint8_t& blue();
+		uint8_t& alpha();
+		bool operator==(Pixel const& other);
+		bool operator!=(Pixel const& other);		
+	private:
+		uint8_t *_data;
 	};
 	
 	/*!
@@ -58,6 +61,16 @@ namespace tinypng {
 		 * @param height Height of the new image.
 		 */
 		PNG(int width, int height);
+
+		/*!
+		 * Creates a PNG image of the desired dimensions using the buffer specified.
+		 * Note: behaviour when sizeof(buffer) < width*height*PNG::BPP is undefined.
+		 *
+		 * @param width Width of the new image.
+		 * @param height Height of the new image.
+		 * @param buffer External buffer to use.
+		 */
+		PNG(int width, int height, uint8_t *buffer);
 
 		/*!
 		 * Creates a PNG image from the specified file on disk.
@@ -109,16 +122,7 @@ namespace tinypng {
 		 * @param y Y-coordinate for the pixel.
 		 * @return A reference to the pixel at the given coordinates.
 		 */
-		Pixel* operator()(int x, int y);
-
-		/*!
-		 * Const pixel access operator. (0,0) is the upper left pixel.
-		 *
-		 * @param x X-coordinate for the pixel.
-		 * @param y Y-coordinate for the pixel.
-		 * @return A reference to the pixel at the given coordinates.
-		 */
-		Pixel const* operator()(int x, int y) const;
+		Pixel operator()(int x, int y);
 
 		/*!
 		 * Reads in a PNG object from a file. Overwrites any data in the PNG object.
@@ -151,20 +155,13 @@ namespace tinypng {
 		 */
 		int getHeight() const;
 
-		/*!
-		 * Gets a pointer to the RGBA bytestream.
-		 *
-		 * @return Pointer to the RGBA bytestream.
-		 */
-		uint8_t* bytes() const;
+		static const int BPP = 4;
 
 	private:
 		int _width;
 		int _height;
-		Pixel *_pixels;
-		uint8_t *_bytes;
-
-		static inline bool _pixelsSame(const Pixel& first, const Pixel& second);
+		uint8_t *_bytestream;
+		bool _ext_buffer;
 
 		// Helper functions
 		void _init();
@@ -172,7 +169,7 @@ namespace tinypng {
 		void _copy(PNG const& other);
 		void _syncBytes();
 		void _clampXY(int& width, int& height) const;
-		Pixel& _pixelAt(int x, int y) const;
+		Pixel _pixelAt(int x, int y) const;
 	};
 
 }

@@ -14,6 +14,7 @@ using namespace tinypng;
 
 int main(int argc, char const *argv[])
 {
+
 	PNG input("test_in.png");
 
 	input.writeToFile("test_out.png");
@@ -30,15 +31,16 @@ int main(int argc, char const *argv[])
 		std::cout << "FAILURE" << endl;
 	}
 
-	uint8_t *bytes = test.bytes();
-	int max = test.getWidth() * test.getHeight() * 4;
-	for (int i = 0; i < max; ++i)
-	{
-		bytes[i] += 7;
-	}
-	
+	test(0,0).red() -= 7;
+	test(0,0).green() -= 7;
+	test(0,0).blue() -= 7;
+	test(0,0).alpha() -= 7;
+
 	std::cout << "TinyPNG byte-wise access test: ";
-	if (test(0,0)->red == input(0,0)->red + 7)
+	uint32_t v_test, v_input;
+	v_input =  input(0,0).red() + input(0,0).green() + input(0,0).blue() + input(0,0).alpha();
+	v_test =  test(0,0).red() + test(0,0).green() + test(0,0).blue() + test(0,0).alpha();
+	if (v_test == v_input - 28)
 	{
 		std::cout << "SUCCESS" << endl;
 	}

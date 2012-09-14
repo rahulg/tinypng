@@ -64,9 +64,21 @@ int main(int argc, char const *argv[])
 		std::cout << "FAILURE" << endl;
 	}
 
+	std::cout << "TinyPNG bytewise write test: ";
+	bs_test.buffer()[22] = 0x0D;
+	if (bs_test.buffer()[22] == 0x0D)
+	{
+		std::cout << "SUCCESS" << endl;
+	}
+	else
+	{
+		std::cout << "FAILURE" << endl;
+	}
+
 	remove("test_out.png");
 
 	delete[] backing_store;
+	backing_store = NULL;
 
 	return 0;
 }

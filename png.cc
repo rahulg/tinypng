@@ -17,6 +17,7 @@ inline void pngErr(string const& error)
 PNG::PNG()
 {
 	_buffer = NULL;
+	_ext_buffer = false;
 	_init();
 }
 

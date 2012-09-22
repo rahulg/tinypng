@@ -26,7 +26,8 @@ using std::endl;
 using std::string;
 using std::stringstream;
 
-namespace tinypng {
+namespace tinypng
+{
 	
 	/*!
 	 * Represents a PNG image.

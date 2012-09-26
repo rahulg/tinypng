@@ -2,8 +2,9 @@ CC=clang++
 CFLAGS=--stdlib=libc++
 LIBS=-lpng
 
-OBJ=png.o pixel.o
-HDR=png.h pixel.h
+SRC=$(filter-out unit_test.cc, $(wildcard *.cc))
+OBJ=$(SRC:.cc=.o)
+HDR=$(wildcard *.h)
 
 SYSTEM=$(shell uname -s)
 
@@ -13,7 +14,7 @@ endif
 
 .PHONY: all debug unit clean
 
-all: CLFAGS += -O4
+all: CLFAGS += -O3
 all: $(OBJ)
 
 debug: CFLAGS += -DDEBUG -g

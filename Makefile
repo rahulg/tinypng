@@ -1,6 +1,9 @@
 CC=clang++
-CFLAGS=--stdlib=libc++
+CFLAGS=-std=c++11 --stdlib=libc++
 LIBS=-lpng
+
+AR=ar
+ARCHIVE=libtinypng.a
 
 SRC=$(filter-out unit_test.cc, $(wildcard *.cc))
 OBJ=$(SRC:.cc=.o)
@@ -14,11 +17,13 @@ endif
 
 .PHONY: all debug unit clean
 
-all: CLFAGS += -O3
+all: CFLAGS += -O3
 all: $(OBJ)
+	$(AR) srv $(ARCHIVE) $^
 
 debug: CFLAGS += -DDEBUG -g
 debug: $(OBJ)
+	$(AR) sr $(ARCHIVE) $^
 
 unit: CFLAGS += -DDEBUG -g
 unit: $(OBJ) unit_test.o
@@ -28,4 +33,4 @@ unit: $(OBJ) unit_test.o
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	-rm -f *.o unit
+	-rm -f *.o unit $(ARCHIVE)

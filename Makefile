@@ -19,7 +19,7 @@ endif
 
 all: CFLAGS += -O3
 all: $(OBJ)
-	$(AR) srv $(ARCHIVE) $^
+	$(AR) sr $(ARCHIVE) $^
 
 debug: CFLAGS += -DDEBUG -g
 debug: $(OBJ)

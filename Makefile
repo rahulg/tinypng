@@ -12,7 +12,7 @@ HDR=$(wildcard *.h)
 SYSTEM=$(shell uname -s)
 
 ifeq ($(SYSTEM), Linux)
-LIBS += -Wl,-lstdc++
+# LIBS += -Wl,-lstdc++
 endif
 
 .PHONY: all debug unit clean
